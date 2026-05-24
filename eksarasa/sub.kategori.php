@@ -1,0 +1,162 @@
+<?php
+
+?>
+<script language="javascript">
+   function setBrg(vkd){
+     window.opener.document.getElementById('satuan').value = vkd;
+     window.self.close();
+   }
+</script>
+
+<section class="content-header">
+	<h1>
+		Sub Kategori</h1>
+</section>
+
+<section class="content">
+  <div class="row">
+  					<div class="col-sm-3">
+							<div class="box box-solid box-warning">
+								<div class="box-header">
+									
+								</div>  <?php 
+									if(isset($_GET['pesan'])){?>  
+                                  <div class="small-box bg-green">
+                                <div class="inner"><span style="font-weight:bold; font-size:18px"><?php echo $_GET['pesan'] ?> </span> 
+                                </div>
+                              </div><?php }?>
+								<form action="simpan.sub.kategori.php" method="post" enctype="multipart/form-data">
+								<div class="box-body">		
+								
+									
+                                     <div class="form-group" id="status">
+										<label>Kategori<b style="color:red;">*</b></label>	
+                                        <select name="kategori" class="form-control">
+                                        <?php $qry=mysql_query("select * from kategori_barang order by kategori_barang");while($row=mysql_fetch_array($qry)){?>
+										   	<option value="<?php echo $row['0'] ?>" <?php if($row['0']==@$_GET['kategori']) echo "selected" ?>><?php echo $row['1'] ?></option>
+                                            <?php } ?>
+                                        </select>
+									</div>
+                                    <div class="form-group" id="status">
+										<label>Sub Kategori<b style="color:red;">*</b></label>	
+										    <input type="text" class="form-control" name="sub_kategori"  required="required"  />
+									</div>
+                                    
+<button "submit" class="btn btn-primary btn-flat pull-right" name="submit"><i class="fa fa-save"></i> &nbsp;Simpan</button>
+								</div>
+								</form>
+								<div class="clearfix"></div>
+							</div>
+						</div>
+                        
+                        <div class="col-sm-9">
+                            <div class="box box-warning">
+                                <div class="box-header">
+                            </div><!-- /.box-header -->
+                                <div class="box-body" style="padding-top:0px;">
+									
+                                        <form action="?page=sub.kategori" method="post">
+										<div class="input-group">
+                                            <input type="text" name="cari" class="form-control input-sm pull-right" style="width: 20%;" placeholder="Search" value="<?php echo @$_POST['cari']?>"/>
+                                            <div class="input-group-btn">
+                                                <button class="btn btn-sm btn-default"><i class="fa fa-search"></i></button>
+                                            </div>
+                                        </div>
+										</form>
+                                    <table class="table table-hover table-bordered" style="margin-top:10px;">
+                                        <tr>
+                                            <th width="10" style="text-align:center;">No</th>
+											<th width="50%" style="text-align:center;">Kategori</th>
+                                            <th width="40%" style="text-align:center;">Sub Kategori</th>
+                                              <th width="40%" style="text-align:center;">Aksi</th>
+                                        </tr>
+										<?php
+										$limit = 30;
+										if(isset($_GET['hal'])){
+											$hal = $_GET['hal'];
+										}
+										else{
+											$hal = 1;
+										}
+
+										$offset = ($hal - 1) * $limit;
+										$i=1;
+										$qry=mysql_query("select * from sub_kategori_barang,kategori_barang where sub_kategori_barang.kategori=kategori_barang.kode_kategori_barang and  sub_kategori like '%".@$_POST['cari']."%' order by kategori_barang  asc LIMIT $offset, $limit");
+										while($row=mysql_fetch_array($qry)){
+										?>
+                                        <tr  onclick="javascript:setBrg('<?php echo $row['1'] ?>')">
+                                            <td align="center"><?php echo $i;?></td>
+											 <td style="text-align:center;"><?php echo $row['kategori_barang'] ?></td>
+                                              <td style="text-align:center;"><?php echo $row['2'] ?></td>
+                                               <td style="text-align:center;"><a href="?page=edit.sub.kategori&id=<?php echo $row['id']?>" ><span class="fa fa-edit"></span></a>
+                                               <a href="?page=hapus.sub.kategori&id=<?php echo $row['id']?>" class="hapus"><span class="fa fa-trash-o"></span></a>
+                                               </td>
+                                        </tr>
+                                        <?php
+										$i++;
+										}
+										?>
+                                    </table>
+                                </div><!-- /.box-body -->
+								
+                                <div class="box-footer clearfix">
+								<?php 
+									$query  = "SELECT COUNT(id) AS jumData from sub_kategori_barang where kategori like '%".@$_POST['cari']."%'";
+									$hasil  = mysql_query($query);
+									$data  = mysql_fetch_array($hasil);
+									$jumData = $data['jumData'];
+									$jumPage = ceil($jumData/$limit);
+								?>
+								<label style="float:left;margin-top:6px;">
+								<?php
+								if ($jumData==0){
+									echo "Showing 0 to 0 of 0 Entries";
+								}else{
+								
+								?>
+								Showing <?php echo $offset+1;?> to 
+								<?php 
+								if ($jumPage==$hal){
+								echo $jumData;
+								}else{
+								echo $limit*$hal;
+								}
+								?> 
+								of <?php echo $jumData;?> Entries &nbsp;&nbsp;
+								<?php } ?>
+								</label>
+								<ul class="pagination pagination-sm no-margin pull-right">
+								<?php
+								for($i = 1; $i <= $jumPage; $i++){
+										 if ((($i >= $hal - 3) && ($i <= $hal + 3)) || ($i == 1) || ($i == $jumPage))
+										 {
+											if ($i == $hal) echo "<li><a href=''><b>".$i."</b></a></li>";
+											else echo "<li><a href='".$_SERVER['PHP_SELF']."?page=sub.kategori&hal=".$i."'>".$i."</a></li>";
+										 }
+								}
+								?>
+                                </ul>
+								<label style="float:right;margin-top:5px;">
+									Page :&nbsp;&nbsp;
+								</label>
+                                </div>
+                            </div><!-- /.box -->
+                        </div>
+                    </div>
+</section><!-- /.content -->
+<?php
+
+?>
+  <script>
+$( ".hapus" ).click(function( event ) {
+
+	 var setuju=confirm("Apakah Anda Yakin ? Semua produk yg kategori ini akan hilang.");
+  if ( setuju ) {
+   
+    return;
+  }
+ 
+
+  event.preventDefault();
+});
+</script>
